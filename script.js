@@ -1,4 +1,5 @@
 const output = document.getElementById("output");
+const loadingRow = document.getElementById("loading");
 
 // Function that returns a promise resolving after a random delay (1–3 seconds)
 function createRandomPromise() {
@@ -10,22 +11,22 @@ function createRandomPromise() {
   });
 }
 
-// Main function to handle table updates
+// Main function to run promises and populate table
 function loadPromises() {
-  // Initially show "Loading..." (already in HTML)
   const startTime = performance.now();
 
   // Create 3 promises
   const promises = [createRandomPromise(), createRandomPromise(), createRandomPromise()];
 
-  // Wait for all to resolve
   Promise.all(promises)
     .then((times) => {
       const endTime = performance.now();
       const totalTime = ((endTime - startTime) / 1000).toFixed(3);
 
-      // Clear "Loading..." row
-      output.innerHTML = "";
+      // Remove loading row
+      if (loadingRow) {
+        loadingRow.remove();
+      }
 
       // Add rows for each promise
       times.forEach((time, index) => {
@@ -37,7 +38,7 @@ function loadPromises() {
         output.appendChild(row);
       });
 
-      // Add total row (max of times OR actual elapsed time)
+      // Add total row
       const totalRow = document.createElement("tr");
       totalRow.innerHTML = `
         <td>Total</td>
@@ -45,14 +46,13 @@ function loadPromises() {
       `;
       output.appendChild(totalRow);
     })
-    .catch((err) => {
+    .catch((error) => {
       // Handle errors gracefully
       output.innerHTML = `
-        <tr><td colspan="2" style="color:red;">Error: ${err}</td></tr>
+        <tr><td colspan="2" style="color:red;">Error: ${error}</td></tr>
       `;
     });
 }
 
-// Run when page loads
+// Run the promises when the page loads
 loadPromises();
-
